@@ -2,38 +2,55 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage
 from dotenv import find_dotenv, load_dotenv
 from langchain_core.prompts import PromptTemplate
-
-
+from google import genai
+from google.genai import types
 load_dotenv(find_dotenv())
 
 llm_model = "gemini-2.0-flash"
-kwargs ={
-    "max_output_tokens" : 2000,
-    "tokenizer" : False
-}
-llm = ChatGoogleGenerativeAI(
-    model=llm_model,
-    model_kwargs=kwargs
-)
 
 
+client = genai.Client()
+"""
+chat_model = client.chats.create(
+    model = llm_model,
+    config = types.GenerationConfig(
+        temperature=0.7,
+    ),
+    history=types.Content(
+        role="user", 
+        parts=[
+            types.Part(
+                text="Hello"
+            )
+        ]
+    )
+)"""
+def get_completion(prompt, model=llm_model):
+    chat = client.chats.create(
+        model = llm_model,
+        config = types.GenerateContentConfig(
+            temperature=0.7,
+        )
+    )
+    response = chat.send_message(prompt)
+    return response.text
 
-# Prompt template oluşturuyoruz
-template = """Question: {question}
-Answer: Let's think step by step.""" 
-prompt_template = PromptTemplate.from_template(
-    template
-)
+
+#translate text, review
+
+customer_review = """
+    Your product is terrible! I do not know how 
+    you were able to get this the market.
+    I do not want this! Actually no one should want this.
+    Seriously! Give me money now!
+"""
 
 
-# Zinciri oluşturup çağırıyoruz
-chain = prompt_template | llm
+prompt = f"""
+    Rewrite the following {customer_review} message in a polite tone, and then
+    please translate the new review message into Portugese.
+"""
 
-question = "Who is the president of US?" 
-print(
-    chain.invoke(
-        {"question": question})\
-            .content 
-)
+rewrite = get_completion(prompt=prompt)
 
-
+print(rewrite)
