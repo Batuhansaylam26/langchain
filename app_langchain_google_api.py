@@ -45,7 +45,7 @@ customer_review = """
     Seriously! Give me money now!
 """
 
-tone = """ Proper English in a nice, warm, respectful tone"""
+tone = """ Proper British English in a nice, warm, respectful tone"""
 language = """Turkish"""
 prompt = f"""
     Rewrite the following {customer_review} message in {tone}, and then
