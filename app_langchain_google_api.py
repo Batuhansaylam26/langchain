@@ -45,10 +45,11 @@ customer_review = """
     Seriously! Give me money now!
 """
 
-
+tone = """ Proper English in a nice, warm, respectful tone"""
+language = """Turkish"""
 prompt = f"""
-    Rewrite the following {customer_review} message in a polite tone, and then
-    please translate the new review message into Portugese.
+    Rewrite the following {customer_review} message in {tone}, and then
+    please translate the new review message into {language}.
 """
 
 rewrite = get_completion(prompt=prompt)
