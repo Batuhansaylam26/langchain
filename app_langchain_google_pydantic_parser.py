@@ -15,6 +15,7 @@ chat = ChatGoogleGenerativeAI(
 
 email_response = """
 Here's our itinerary for our upcoming trip to Europe.
+There will be 5 of us on this vacation trip. 
 We leave from Denver, Colorado airport at 8:45 pm, and arrive in Amsterdam 10 hours 
 at Schipol Airport.
 We'll grab a ride to our airbnb and maybe stop somewhere for breakfast before 
@@ -27,50 +28,7 @@ to bring back to our children and friends.
 The next morning, at 7:45 am we'll drive to to Belgium, Brussels.
 While in Brussels we want to explore the city to its fullest.
 """
-
-
-from langchain.output_parsers import ResponseSchema, StructuredOutputParser
-
-
-leave_time_schema = ResponseSchema(
-    name= "leave_time",
-    description= "When they are leaving. \
-        It's usually a numerical time of the day. \
-             If not available write n/a "
-)
-
-
-leave_from_schema = ResponseSchema(
-    name= "leave_from",
-    description= "Where they are leaving. \
-        It's a city, airport or state, or province"
-)
-
-
-cities_to_visit_schema = ResponseSchema(
-    name= "cities_to_visit",
-    description= "The cities, towns they will be visiting during their trip. \
-        This needs to be in a list"
-)
-
-response_schema = [
-    leave_time_schema,
-    leave_from_schema,
-    cities_to_visit_schema
-]
-
-
-# setup the output parser
-
-output_parser = StructuredOutputParser.from_response_schemas(
-    response_schemas=response_schema
-)
-
-format_instructions = output_parser.get_format_instructions()
-
-#print(format_instructions)
-# reviewed email template - we update to add the {format_instructions}
-email_template_revised = """
+email_template = """
 From the following email, extract the following information:
 leave_time: when are they leaving for vacation to Europe. If there's an actual
 time written, use it, if not write unknown.
@@ -85,9 +43,62 @@ leave_from
 cities_to_visit
 
 email: {email}
-{format_instructions}
 """
 
+from langchain.output_parsers import PydanticOutputParser
+from pydantic import BaseModel, Field, field_validator
+from typing import List
+
+
+
+class VacationInfo(BaseModel):
+    leave_time: str = Field(
+        description= "When they are leaving. \" \
+            It's usually a numerical time of the day. \
+                If not available write n/a "
+    )
+
+    leave_from: str = Field(
+        description= "Where they are leaving. \
+            It's a city, airport or state, or province"
+    )
+
+    cities_to_visit: List = Field(
+        description= "The cities, towns they will be visiting during their trip. \
+            This needs to be in a list"
+    )
+
+    num_people: int = Field(
+        description= "This is an integer for a number of people on this trip"
+    )
+
+    # you can add custom validation logic ...
+    @field_validator('num_people')
+    def check_num_people(cls, field):
+        if field <= 0:
+            raise ValueError(
+                "\
+                    Badly formatted number.\
+                "
+            )
+        return field
+    
+#setup a parser and inect the instructions
+pydantic_parser = PydanticOutputParser(
+    pydantic_object= VacationInfo
+)
+
+format_instructions = pydantic_parser.get_format_instructions()
+
+# reviewed email template - we update to add the {format_instructions}
+email_template_revised ="""
+From the following email, extract the following information regarding
+this trip
+
+email: {email}
+
+{format_instructions}
+"""
 
 updated_prompt = ChatPromptTemplate.from_template(
     template=email_template_revised
@@ -98,19 +109,24 @@ messages = updated_prompt.format_messages(
     format_instructions = format_instructions
 )
 
-response = chat.invoke(messages)
+format_response =  chat.invoke(
+    messages
+)
 
-
-
-output_dict = output_parser.parse(
-    response.content
-) # parse into dict
-
-print(output_dict)
-print(type(output_dict))
+vacation = pydantic_parser.parse(
+    format_response.content
+)
+print(
+    vacation
+)
 
 print(
-    f" \
-Cities:::: {output_dict['cities_to_visit'][0]} \
-    "
+    type(vacation)
 )
+
+print(
+    vacation.cities_to_visit
+)
+
+for item in vacation.cities_to_visit:
+    print(f" Cities: {item}")
