@@ -27,33 +27,6 @@ to bring back to our children and friends.
 The next morning, at 7:45 am we'll drive to to Belgium, Brussels.
 While in Brussels we want to explore the city to its fullest.
 """
-email_template = """
-From the following email, extract the following information:
-leave_time: when are they leaving for vacation to Europe. If there's an actual
-time written, use it, if not write unknown.
-
-leave_from: where are they leaving from, the airport or city name and state if available.
-
-cities_to_visit: extract the cities they are going to visit. If there are more than one, put them in square brackets like '["cityone","citytwo"]'.
-
-Format the output as JSON with the following keys:
-leave_time
-leave_from
-cities_to_visit
-
-email: {email}
-"""
-prompt_template = ChatPromptTemplate.from_template(
-    template = email_template
-)
-#print(prompt_template)
-
-messages = prompt_template.format_messages(
-    email = email_response,
-)
-response = chat.invoke(input=messages)
-
-print(type(response.content))
 
 
 from langchain.output_parsers import ResponseSchema, StructuredOutputParser
