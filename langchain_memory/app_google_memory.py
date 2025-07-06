@@ -1,8 +1,10 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import find_dotenv, load_dotenv
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain.memory import ConversationBufferMemory
+from langchain_core.chat_history import BaseChatMessageHistory
+from pydantic import BaseModel, Field
+from langchain_core.messages import BaseMessage, AIMessage
 
 load_dotenv(find_dotenv())
 # Using Langchain and prompt templates - Still Google API
@@ -30,43 +32,69 @@ print(
         message_2
     ).content
 )
-prompt = ChatPromptTemplate.from_messages([
-    ("placeholder", "{history}"), # This is where the conversation history will be injected
-    ("human", "{input}")
-])
+
 # How to solve llms memory issues?
-memory = ConversationBufferMemory()
+# First we define In memory implementation of chat message history
+class InMemoryHistory(BaseChatMessageHistory, BaseModel):
+    messages: list[BaseMessage] = Field(
+        default_factory= list,
+        description = "A list of chat messages in the history."
+    )
+    def add_messages(self, messages: list[BaseMessage]) -> None:
+        self.messages.extend(messages)
 
-# 2. Initialize ConversationBufferMemory
-# This memory stores messages in a buffer.
-store = {} # A simple dictionary to store memory for different session_ids
+    def clear(self) -> None:
+        self.messages = list() 
 
-def get_session_history(session_id: str) -> ConversationBufferMemory:
+
+
+# Here we use a global variable to store the chat message history.
+# This will make it easier to inspect it to see the underlying results.
+store = {}
+
+
+def get_by_session_id(session_id: str) -> BaseChatMessageHistory:
     if session_id not in store:
-        store[session_id] = memory
+        store[session_id] = InMemoryHistory()
     return store[session_id]
 
-# 3. Create RunnableWithMessageHistory
-# This wraps your LLM and handles memory management.
-conversation = RunnableWithMessageHistory(
-    llm=llm,
-    get_session_history=get_session_history, # Use the callable to get history for a session
-    verbose=True, # Set to True to see what LangChain is doing
-    runnable=prompt # Pass your prompt template here
 
+
+prompt = ChatPromptTemplate.from_messages([
+    MessagesPlaceholder(variable_name='history'),
+    ("human", "{input}")
+])
+
+
+chain = prompt | llm
+
+chain_with_history = RunnableWithMessageHistory(
+    runnable=chain,
+    get_session_history= get_by_session_id,
+    input_messages_key= "input",
+    history_messages_key= "history"
 )
 
-
 print(
-    conversation.invoke(
-        input = message,
-        config={"configurable": {"session_id": "user123"}}
-    ).content
+    chain_with_history.invoke(
+        {
+            "input" : message,
+        },
+        config={"configurable": {"session_id": "foo"}}
+    )
 )
 
 print(
-    conversation.invoke(
-        input = message_2,
-        config={"configurable": {"session_id": "user123"}}
-    ).content
+    chain_with_history.invoke(
+        {
+            "input" : message_2
+        },
+        config={"configurable": {"session_id": "foo"}}
+    )
+)
+
+print("=========================================================")
+
+print(
+    chain_with_history.get_session_history("foo")
 )
