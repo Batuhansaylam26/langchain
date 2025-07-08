@@ -1,9 +1,7 @@
-import os
 from dotenv import find_dotenv, load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
-from langchain.callbacks.tracers import ConsoleCallbackHandler
-from langchain_core.runnables import RunnablePassthrough, RunnableParallel, RunnableSequence
+from langchain_core.runnables import RunnableParallel, RunnableSequence
 from langchain_core.output_parsers import StrOutputParser
 
 load_dotenv(find_dotenv())
