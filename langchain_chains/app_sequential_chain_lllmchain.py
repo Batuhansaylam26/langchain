@@ -1,8 +1,6 @@
 from dotenv import find_dotenv, load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
-from langchain_core.runnables import RunnableParallel, RunnableSequence
-from langchain_core.output_parsers import StrOutputParser
 from langchain.chains.llm import LLMChain
 from langchain.chains.sequential import SequentialChain
 load_dotenv(find_dotenv())
