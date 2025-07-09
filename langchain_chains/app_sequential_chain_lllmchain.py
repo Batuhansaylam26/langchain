@@ -3,7 +3,8 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnableSequence
 from langchain_core.output_parsers import StrOutputParser
-
+from langchain.chains.llm import LLMChain
+from langchain.chains.sequential import SequentialChain
 load_dotenv(find_dotenv())
 
 llm = ChatGoogleGenerativeAI(
@@ -24,7 +25,14 @@ prompt_story = PromptTemplate(
     input_variables=["location", "name"],
     template=template
 )
-chain_story = prompt_story | llm | StrOutputParser()
+chain_story = LLMChain(
+    llm=llm,
+    prompt=prompt_story,
+    output_key= "story"
+)
+
+
+
 template_update = """
 Translate the {story} into {language}. Make sure
 the language is simple and fun.
@@ -37,51 +45,24 @@ prompt_translate = PromptTemplate(
     template=template_update
 )
 
-chain_translate = prompt_translate | llm |  StrOutputParser()
-
-
-
-overall_chain = RunnableSequence(
-    # Step 1: Prepare the inputs for the entire process.
-    # This RunnableParallel takes the initial inputs (location, name, language).
-    # It runs 'chain_story' to get the English story, and passes 'language' through.
-    # Output of this step: {"story": "English Lullaby", "language": "Target Language"}
-    RunnableParallel(
-        story=chain_story, # This will execute chain_story using initial 'location' and 'name'
-        language = lambda x: x['language'] # Passes the initial 'language' input directly
-    ),
-    # Step 2: Take the output from Step 1 (which is {"story": ..., "language": ...})
-    # and use it to generate the translation, while preserving the original story.
-    # Output of this step: {"story": "English Lullaby", "translated": "Translated Lullaby"}
-    RunnableParallel(
-        # The 'story' key here simply takes the 'story' value from the input of this step (x).
-        # This ensures the original English story is part of the final output.
-        story=lambda x: x["story"],
-        # The 'translated' key defines how the translated text is generated.
-        # It uses a sub-chain that explicitly maps 'story' and 'language' from 'x'
-        # to the 'chain_translate' runnable.
-        translated= chain_translate # Execute the translation chain with the mapped inputs
-    )
+chain_translate = LLMChain(
+    llm=llm,
+    prompt=prompt_translate,
+    output_key= "translated"
 )
-response = overall_chain.invoke(
-    {
-        "location": "Zanzibar",
-        "name": "Maya",
-        "language": "Turkish"
-    }
+
+
+overall_chain = SequentialChain(
+    chains=[chain_story,chain_translate],
+    input_variables= ["location", "name","language"],
+    output_variables= ["story", "translated"]
 )
-"""print(
-    RunnableParallel(
-        story=chain_story, # This will execute chain_story using initial 'location' and 'name'
-        language = lambda x: x['language'] # Passes the initial 'language' input directly
-    ).invoke(
-        {
-        "location": "Zanzibar",
-        "name": "Maya",
-        "language": "Turkish"
-    }
-    )
-)"""
+
+response = overall_chain.invoke({
+    "location": "Zanzibar",
+    "name": "Maya",
+    "language": "Turkish"
+})
 print(
     f"English version ===> {response['story']}\n"
 )

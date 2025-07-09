@@ -1,8 +1,7 @@
 from langchain.chains.llm import LLMChain
 from dotenv import find_dotenv, load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import PromptTemplate, MessagesPlaceholder
-from langchain.callbacks.tracers import ConsoleCallbackHandler
+from langchain_core.prompts import PromptTemplate
 
 load_dotenv(find_dotenv())
 # Using Langchain and prompt templates - Still Google API
