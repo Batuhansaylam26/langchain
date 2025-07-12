@@ -8,7 +8,7 @@ Then, The Gemini-2.5-Flash was used by using kwarg after the GOOGLE_API_KEY was 
 
 ## [Prompt Templates](langchain_prompt_template)
 
-Prompt templates help to translate user input and parameters into instructions for a language model. This can be used to guide a model's response, helping it understand the context and generate relevant and coherent language-based output -- <cite>Langchain [1]</cite>.
+Prompt templates help to translate user input and parameters into instructions for a language model. This can be used to guide a model's response, helping it understand the context and generate relevant and coherent language-based output [1].
 
 
 
