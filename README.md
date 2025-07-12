@@ -81,7 +81,14 @@ In order to apply this chain as LCEL, RunnableSequence and RunnableParallel have
 
 ![Router Chain [8]](images/9_yeEjVhG-thumbnail_webp-600x300.webp)
 
+>Routing allows you to create non-deterministic chains where the output of a previous step defines the next step. Routing can help provide structure and consistency around interactions with models by allowing you to define states and use information related to those states as context to model calls.[9]<p>
 
+
+Router chains allows us to use the specialized LLM. If input does not appropriate the destinations chain, the input goes to default chain.<p>
+
+Firstly, on [the script](router_chains/app_router_chain_lllmchain.py), each prompt template of destination chains was defined. Then, dictionaries of these templates which also include name and description of destionation chains were stored in a list. Then, a dictionary was defined to include each destionation chain with names. Then, the names and descriptions of destionations were converted into string, router prompt template was declared by using MULTI_PROMPT_ROUTER_TEMPLATE. Then router promt were declared by the template and RouterOutputParser. Finally, router chain were defined by LLMRouterChain.<p>
+
+As a result, by using MultiPromptChain, the router chain which consists of destination chains, router chain and default chain was done.
 
 # References
 [1] https://python.langchain.com/docs/concepts/prompt_templates/ <br>
@@ -92,3 +99,4 @@ In order to apply this chain as LCEL, RunnableSequence and RunnableParallel have
 [6] https://python.langchain.com/api_reference/langchain/chains.html<br>
 [7] https://images.app.goo.gl/D6J5DQMoGvMaPC3R8 <br>
 [8] https://images.app.goo.gl/yThKRuJ5uTZsw9sP6 <br>
+[9] https://python.langchain.com/docs/how_to/routing/<br>
