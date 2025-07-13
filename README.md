@@ -142,9 +142,21 @@ The chunk overlap allows us to avoid losing the context information for each chu
 
 ## [Embeddings and Vectorstore](langchain_vectorStore_embeddings)
 
+![RAG [12]](images/1_8eLGJBNzL9TQBkrgBOiBfw.png)
+
+
+Embeddings are vector representations of text that capture semantic meaning, enabling advanced search and retrieval capabilities. Vectorstores are specialized databases designed to store and efficiently search these embeddings.
+
+In this section, various scripts demonstrate how to generate embeddings using Google Generative AI, store them in a vector database (ChromaDB), and perform semantic similarity searches and retrieval-augmented question answering.
+
+- **Embeddings and Semantic Similarity:** Texts are converted into embeddings, and their semantic similarity is calculated using vector operations. This allows for meaningful comparison beyond simple keyword matching.
+- **Saving Embeddings and Similarity Search:** Documents (such as PDFs) are loaded, split into chunks, embedded, and stored in a persistent vectorstore. Queries can then be run to find the most relevant document chunks based on semantic similarity.
+- **Retriever and Retrieval QA Chain:** A retriever is built from the vectorstore to enable semantic search. A RetrievalQA chain uses the retriever and a language model to answer questions based on the retrieved context, also providing source citations.
+
+These workflows enable scalable, efficient, and context-aware search and question answering over large collections of unstructured documents using LangChain and modern embedding models.
+
 ### [Embeddings and Semantic Similarity](langchain_vectorStore_embeddings/app_embeddings_semantic_similarity.py)
 
-Embeddings of text are vector representations for different texts.<br>
 Semantic similarity is a technique used to measure how similar two pieces of text are in meaning, rather than just in wording. In this script, Google Generative AI's embedding model is used to generate vector representations for different texts.<p>
 
 First, the environment variables are loaded and the Gemini model is initialized for both chat and embedding tasks. Three sample texts are defined: "Kitty", "Rock", and "Cat". Each text is converted into an embedding vector using the GoogleGenerativeAIEmbeddings class.<p>
@@ -192,3 +204,4 @@ This workflow enables efficient, source-aware question answering over large docu
 [9] https://python.langchain.com/docs/how_to/routing/<br>
 [10] https://python.langchain.com/docs/how_to/recursive_text_splitter/ <br>
 [11] https://images.app.goo.gl/F6HuicyQAVrDN3Pb7 <br>
+[12] https://images.app.goo.gl/PHBXuUJ9KE7ntAJDA <br>
