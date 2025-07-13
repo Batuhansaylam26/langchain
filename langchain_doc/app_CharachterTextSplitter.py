@@ -14,12 +14,14 @@ chat = ChatGoogleGenerativeAI(
 with open("./data/letter_of_intent.txt", encoding='iso-8859-9') as paper:
     resume = paper.read()
 
+print([resume])
 
 text_splitter = CharacterTextSplitter(
     chunk_size = 200,
     chunk_overlap = 20,
     length_function = len
 )
+
 
 texts = text_splitter.create_documents([resume])
 

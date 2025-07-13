@@ -94,6 +94,55 @@ As a result, by using MultiPromptChain, the router chain which consists of desti
 ## [Document Loading and Document Splitting](langchain_doc)
 
 
+Document loading and splitting are fundamental steps for processing large documents and enabling more efficient querying. LangChain allows you to load documents from various sources and split these documents into smaller chunks, making LLMs work more effectively.<p>
+
+![doc loading scheme [11]](images/doc.png)
+
+
+### [Document Loader](langchain_doc/app_doc_load.py)
+
+First, documents are loaded in different formats (txt, pdf, docx, etc.). In the script, the appropriate loader class (PyPDFLoader) from langchain.document_loaders is selected, the file path is specified, and the documents are loaded. The loader returns the document content as a list. In this list, the pages were stored. Also, the pages content between first and 50th characters are displayed.<p>
+
+
+### Document Splitter
+
+Since loaded documents are often very large, they are split into smaller chunks to help LLMs understand them better. In the script, LangChain's splitter functions are used to divide documents based on a specific word or character count. Each chunk can be processed as a separate document.<p>
+
+There are many types of splitter. There several of them are:
+* CharacterTextSplitter
+* CodeTextSplitter
+* MarkdownHeaderTextSplitter
+* RecursiveCharacterSplitter
+* TokenTextSplitter
+<p>
+All of them need a list of pages to split into chunks in order to recognize the some characters such as "\n\n", "\n", " ", "".<p> 
+
+Futhermore, the loading and splitting steps are combined into a pipeline. The document is first loaded, then split into chunks, and if necessary, prepared for embedding or retrieval. This enables faster and more efficient search, summarization, or question-answering operations on documents.<p>
+
+With these scripts, you can easily manage the data preparation process when developing document-based applications with LangChain.<p>
+
+#### [Character Text Splitter](langchain_doc/app_CharachterTextSplitter.py)
+
+CharacterTextSplitter is one of the basic text splitting tools in LangChain. It splits documents into smaller chunks based on a specified character, such as a space or newline. This helps large documents become manageable for language models.<p>
+
+In the script, after loading the text file (txt) using the open function, the CharacterTextSplitter class is initialized. For initialization, the chunk size is set to 200 and the chunk overlap is set to 20.<p>
+
+Chunk overlap helps preserve context between chunks, ensuring that important information is not lost at the boundaries.<p>
+
+
+#### [Recursive Character Splitter](langchain_doc/app_RecursiveCharachterTextSplitter.py)
+
+In some cases, documents need to be split in a more sophisticated way. With RecursiveCharacterTextSplitter, documents are split by paying attention to sentence or paragraph boundaries. This method reduces information loss and helps obtain more meaningful chunks.<p>
+
+> This text splitter is the recommended one for generic text. It is parameterized by a list of characters. It tries to split on them in order until the chunks are small enough. The default list is ["\n\n", "\n", " ", ""]. [10] <p>
+
+On the script, after the text file (txt) was loaded by using open, the class of the splitter was initialized. For the initialization, the chunk size was defined as 20 and chunk overlap was defined as 3.<p>
+
+The chunk overlap allows us to avoid losing the context information for each chunk.<p>
+
+
+
+
 # References
 [1] https://python.langchain.com/docs/concepts/prompt_templates/ <br>
 [2] https://python.langchain.com/api_reference/langchain/memory.html <br>
@@ -104,3 +153,5 @@ As a result, by using MultiPromptChain, the router chain which consists of desti
 [7] https://images.app.goo.gl/D6J5DQMoGvMaPC3R8 <br>
 [8] https://images.app.goo.gl/yThKRuJ5uTZsw9sP6 <br>
 [9] https://python.langchain.com/docs/how_to/routing/<br>
+[10] https://python.langchain.com/docs/how_to/recursive_text_splitter/ <br>
+[11] https://images.app.goo.gl/F6HuicyQAVrDN3Pb7 <br>
