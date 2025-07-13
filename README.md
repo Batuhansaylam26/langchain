@@ -190,6 +190,125 @@ To answer questions based on the retrieved documents, a RetrievalQA chain is con
 This workflow enables efficient, source-aware question answering over large documents, combining semantic search and generative AI for robust retrieval-augmented generation.<p>
 
 ## [Agents](langchain_agents)
+>LangChain supports the creation of agents, or systems that use LLMs as reasoning engines to determine which actions to take and the inputs necessary to perform the action. After executing actions, the results can be fed back into the LLM to determine whether more actions are needed, or whether it is okay to finish. This is often achieved via tool-calling. [13]<p>
+
+![agent [14]](images/1_PQHNtQQkq1ga0Sdh3Uui8w.png)
+
+This approach allows you to extend your agent's capabilities by adding specialized tools for different tasks, such as math, search, or code execution.<p>
+
+
+**Some Agent Types**
+
+LangChain supports several agent types, each designed for different use cases:
+
+- **Zero-Shot-React-Description:**  
+  This agent uses a language model to decide which tool to use for each query, without requiring explicit examples. It reacts to the user's input and selects the appropriate tool based on the tool descriptions.<p> Also, it needs one single interaction with agent -it will have no memory.<p>
+
+- **Conversational-React-Description:**  
+  This agent extends the zero-shot-react approach by maintaining conversation history. It uses memory to keep track of previous interactions, enabling context-aware responses and more natural conversations.<p>
+
+- **React-Docstore:**  
+  This agent is specialized for interacting with document stores. It can search, retrieve, and answer questions based on documents, making it useful for knowledge base and retrieval-augmented tasks.<p> It has been built for information search and look up using langchain docstore.
+
+Each agent type can be configured with different tools and memory options to suit specific workflows, such as math reasoning, general knowledge, web search, or document retrieval.
+
+### [LLM Math Chain Tool](langchain_agents/app_llmathchain_tool.py)
+
+This script demonstrates how to create a math tool agent using LangChain and Google Generative AI. The LLMMathChain enables the language model to perform mathematical calculations and answer math-related questions.<p>
+
+First, the Gemini model is initialized for chat-based interactions. The LLMMathChain is wrapped in a Tool object, named "Calculator", with a description indicating its purpose. This tool can be integrated into agent workflows, allowing the agent to handle queries that require mathematical reasoning or computation.<p>
+
+The script prints the name and description of the tool, confirming its setup.<br>
+
+### [Math Agent](langchain_agents/app_buitin_math_tool_testing_agent.py)
+
+This script shows how to create an agent in LangChain that can perform mathematical reasoning using Google Generative AI. The Gemini model is initialized for chat interactions. The agent is equipped with the LLMMathChain tool by using load_tools, allowing it to answer math-related queries.<p>
+
+The agent uses a single chat model instance for both decision-making and tool execution. The agent selects the appropriate tool, and the chat model processes the prompt and provides the response.<p>
+
+The agent is set up with a maximum of 3 iterations to control costs. When invoked with a math question (e.g., `"What is 3.1**2.1"`), it uses the calculator tool to compute the answer. For factual questions outside its toolset (e.g., `"What is the capital of Mozambique"`), the agent responds that it cannot answer, demonstrating tool-based limitations.<p>
+
+This approach enables agents to handle specialized tasks by integrating tools, and clearly shows how tool-calling restricts the agent’s capabilities to its configured tools.<p>
+
+Example output:<br>
+```
+> Entering new AgentExecutor chain...
+I don't have the tools to answer factual questions about geography. I am an AI assistant that can only use the calculator tool.
+Final Answer: I am sorry, I cannot answer this question.
+
+> Finished chain.
+I am sorry, I cannot answer this question.
+```
+
+
+
+### [General Knowledge & Math Agent](langchain_agents/app_general_knowledge_tool.py)
+
+This script demonstrates how to create an agent in LangChain that can answer both general knowledge and math questions using Google Generative AI. The Gemini model is initialized for chat interactions. Two tools are added to the agent:<p>
+- **LLMMathChain** for mathematical reasoning by loading load_tools.
+- **LLMChain** for general queries and logic.
+
+The agent is set up with a maximum of 3 iterations. When invoked with a factual question (e.g., `"What is the capital of China?"`), it uses the general knowledge tool. For math-related queries (e.g., age or arithmetic calculations), it uses the calculator tool.<p>
+
+This approach enables agents to handle a wider range of tasks by integrating multiple specialized tools.<br>
+
+Example output:<br>
+```
+> Entering new AgentExecutor chain...
+Observation: The capital of China is Beijing.
+Final Answer: Beijing
+
+> Finished chain.
+Beijing
+```
+
+### [Conversational Agent with Memory](langchain_agents/app_conversational_agents_memory.py)
+
+This script shows how to build a conversational agent in LangChain that can answer both general knowledge and math questions, while maintaining conversation history using memory. The Gemini model is initialized for chat interactions. The agent uses two tools:
+- **LLMMathChain** for mathematical reasoning.
+- **LLMChain** for general queries and logic.
+
+A `ConversationBufferMemory` object is added to the agent, enabling it to remember previous exchanges and use context from earlier questions. This allows for more natural, context-aware conversations.
+
+Example output:
+```
+> Entering new AgentExecutor chain...
+Observation: James will be 95 years old in 50 years. He has 11 children in total.
+Final Answer: James will be 95 years old in 50 years and has 11 children.
+
+> Finished chain.
+James will be 95 years old in 50 years and has 11 children.
+
+> Entering new AgentExecutor chain...
+Observation: If James had only 3 kids, he would have 10 children in total (3 + 7 adopted).
+Final Answer: If James had only 3 kids, he would have 10 children in total.
+
+> Finished chain.
+If James had only 3 kids, he would have 10 children in total.
+```
+### [Wikipedia Agent](langchain_agents/app_agent_wikipedia.py)
+
+This script shows how to create an agent in LangChain that can answer factual questions using Wikipedia as a search tool. The Gemini model is initialized for chat interactions. The agent uses the `WikipediaQueryRun` tool, which queries Wikipedia and returns the most relevant result.
+
+The agent is set up with a maximum of 5 iterations to handle complex queries. When invoked with a question (e.g., `"What was Bach's last piece he wrote?"`), it searches Wikipedia and provides a concise answer.
+
+Example output:
+```
+--- Nihai Cevap ---
+Bach's last piece was the chorale prelude "Vor deinen Thron tret' ich hiermit" (Before Thy Throne I Now Appear), BWV 668.
+```
+
+### [Self-Ask Agent with Google Search](langchain_agents/app_self_ask_agent.py)
+
+This script demonstrates how to create a LangChain agent that can answer complex questions by decomposing them into sub-questions and using Google Search (via SerpAPI) for intermediate answers. The Gemini model is initialized for chat interactions. The agent uses the `self-ask-with-search` agent type and a search tool powered by SerpAPI.
+
+When invoked with a question (e.g., `"How to bake a cake with 123 ingredients?"`), the agent breaks down the query, searches for relevant information, and provides a detailed answer.
+
+Example output:
+```
+--- Nihai Cevap ---
+To bake a cake with 123 ingredients, you would need to carefully organize and measure each ingredient, follow a comprehensive recipe, and ensure proper mixing and baking techniques. (Example answer, actual output may vary based on search results.)
+```
 
 
 # References
@@ -205,3 +324,5 @@ This workflow enables efficient, source-aware question answering over large docu
 [10] https://python.langchain.com/docs/how_to/recursive_text_splitter/ <br>
 [11] https://images.app.goo.gl/F6HuicyQAVrDN3Pb7 <br>
 [12] https://images.app.goo.gl/PHBXuUJ9KE7ntAJDA <br>
+[13] https://python.langchain.com/docs/tutorials/agents/ <br>
+[14] https://images.app.goo.gl/8xqFHVfyE7ikM4ir5 <br>

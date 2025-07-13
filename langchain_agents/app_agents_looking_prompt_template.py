@@ -13,13 +13,7 @@ chat = ChatGoogleGenerativeAI(
     temperature=0.7
 )
 
-math_tool = Tool(
-    name= "Calculator",
-    func= LLMMathChain(
-        llm=chat
-    ),
-    description="Useful for when you need to answer questions related to Math."
-)
+
 
 prompt = PromptTemplate(
     input_variables=["query"],

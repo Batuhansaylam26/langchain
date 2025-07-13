@@ -12,13 +12,6 @@ chat = ChatGoogleGenerativeAI(
     temperature=0.7
 )
 
-math_tool = Tool(
-    name= "Calculator",
-    func= LLMMathChain(
-        llm=chat
-    ),
-    description="Useful for when you need to answer questions related to Math."
-)
 
 tools = load_tools(
     ['llm-math'],
@@ -36,7 +29,7 @@ agent = initialize_agent(
     verbose=True,
     max_iterations=3 #to avoid high bills from the LLM
 )
-query = "What is 3.1^2.1"
+query = "What is 3.1**2.1"
 result = agent.invoke(query)
 
 
@@ -60,8 +53,6 @@ result2 = agent.invoke(query2)
 print(
     result2['output']
 )
-# last query gives an error as output
-#raised error: invalid syntax (<expr>, line 1). Please try again with a valid numerical expression
 """
 > Entering new AgentExecutor chain...
 I don't have the tools to answer factual questions about geography. I am an AI assistant that can only use the calculator tool.
