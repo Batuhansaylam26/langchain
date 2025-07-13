@@ -140,7 +140,44 @@ On the script, after the text file (txt) was loaded by using open, the class of 
 
 The chunk overlap allows us to avoid losing the context information for each chunk.<p>
 
+## [Embeddings and Vectorstore](langchain_vectorStore_embeddings)
 
+### [Embeddings and Semantic Similarity](langchain_vectorStore_embeddings/app_embeddings_semantic_similarity.py)
+
+Embeddings of text are vector representations for different texts.<br>
+Semantic similarity is a technique used to measure how similar two pieces of text are in meaning, rather than just in wording. In this script, Google Generative AI's embedding model is used to generate vector representations for different texts.<p>
+
+First, the environment variables are loaded and the Gemini model is initialized for both chat and embedding tasks. Three sample texts are defined: "Kitty", "Rock", and "Cat". Each text is converted into an embedding vector using the GoogleGenerativeAIEmbeddings class.<p>
+
+To calculate the semantic similarity between two texts, the dot product of their embedding vectors is computed using NumPy. A higher similarity score indicates that the texts are more closely related in meaning.<p>
+
+This approach allows you to compare the semantic content of different texts, which is useful for tasks such as search, clustering, and recommendation in NLP applications.<p>
+
+### [Saving Embeddings and Similarity Search](langchain_vectorStore_embeddings/app_saving_embeddings_similarity_search.py)
+
+This script demonstrates how to load a PDF document, split it into manageable chunks, generate embeddings for each chunk, and store them in a persistent vector database for efficient similarity search.
+
+First, the document is loaded using PyPDFLoader. The RecursiveCharacterTextSplitter is used to divide the document into chunks of 2000 characters with an overlap of 150 characters, ensuring that context is preserved between chunks.
+
+The GoogleGenerativeAIEmbeddings model is used to generate vector representations for each chunk. These embeddings are then stored in a Chroma vector database, which is created in a specified directory for persistence.
+
+To perform a similarity search, a query such as "What is Batuhan's education?" is provided. The vector database retrieves the most relevant chunks based on semantic similarity to the query. The top results are printed, allowing you to quickly find information within large documents.
+
+This workflow enables scalable and efficient document search, making it easy to retrieve relevant information from unstructured data using LangChain and vector databases.
+
+### [Retriever and Retrieval QA Chain](langchain_vectorStore_embeddings/app_retrievers.py)
+
+This script demonstrates how to build a document retriever and a question-answering chain using LangChain and Google Generative AI embeddings.<p>
+
+First, a PDF document is loaded and split into manageable chunks using RecursiveCharacterTextSplitter. Each chunk is embedded with GoogleGenerativeAIEmbeddings and stored in a Chroma vector database. The database is persisted for later use.<p>
+
+A retriever is created from the vector store (ChromaDB), allowing semantic search over the document chunks. When a query such as "Tell me more about Batuhan SAYLAM" is provided, the retriever returns the most relevant chunks.<p>
+
+To answer questions based on the retrieved documents, a RetrievalQA chain is constructed using the Gemini chat model. The chain takes the retriever as input and generates answers using the retrieved context. The script also includes a helper function to display the answer and cite the sources from which the information was retrieved.<p>
+
+This workflow enables efficient, source-aware question answering over large documents, combining semantic search and generative AI for robust retrieval-augmented generation.<p>
+
+## [Agents](langchain_agents)
 
 
 # References
